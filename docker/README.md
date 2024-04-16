@@ -39,8 +39,8 @@ You'll need to configure your application to use any services you enabled:
 
 Service|Hostname|Port number
 ------|---------|-----------
-php-fpm|php-fpm|9000
-MySQL|mysql|3306 (default)
+php-fpm|app|9000
+MySQL|database|3306 (default)
 Memcached|memcached|11211 (default)
 
 # Docker compose cheatsheet #
@@ -56,9 +56,9 @@ Memcached|memcached|11211 (default)
   all containers in `SERVICE_NAME`.
 * Execute command inside of container: `docker-compose exec SERVICE_NAME COMMAND` where `COMMAND` is whatever you want
   to run. Examples:
-    * Shell into the PHP container, `docker-compose exec php-fpm bash`
-    * Run symfony console, `docker-compose exec php-fpm bin/console`
-    * Open a mysql shell, `docker-compose exec mysql mysql -uroot -pCHOSEN_ROOT_PASSWORD`
+    * Shell into the PHP container, `docker-compose exec app bash`
+    * Run symfony console, `docker-compose exec app bin/console`
+    * Open a mysql shell, `docker-compose exec mysql mysql -uroot -proot`
 
 # Application file permissions #
 
