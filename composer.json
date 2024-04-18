@@ -12,6 +12,7 @@
         "doctrine/doctrine-bundle": "^2.12",
         "doctrine/doctrine-migrations-bundle": "^3.3",
         "doctrine/orm": "^3.1",
+        "lexik/jwt-authentication-bundle": "^2.20",
         "nelmio/cors-bundle": "^2.4",
         "phpdocumentor/reflection-docblock": "^5.4",
         "phpstan/phpdoc-parser": "^1.28",
@@ -80,6 +81,12 @@
         }
     },
     "require-dev": {
-        "symfony/maker-bundle": "^1.58"
+        "hautelook/alice-bundle": "^2.14",
+        "phpunit/phpunit": "^9.5",
+        "symfony/browser-kit": "7.0.*",
+        "symfony/css-selector": "7.0.*",
+        "symfony/http-client": "7.0.*",
+        "symfony/maker-bundle": "^1.58",
+        "symfony/phpunit-bridge": "^7.0"
     }
 }
