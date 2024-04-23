@@ -2,9 +2,12 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiProperty;
 use App\Repository\UserRepository;
 use ApiPlatform\Metadata\ApiResource;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -20,8 +23,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['read', 'write'])]
+    #[Groups(['read'])]
+    #[ApiProperty(identifier:false)]
     private ?int $id = null;
+
+    #[ORM\Column(type:"uuid", unique:true)]
+    #[ApiProperty(identifier:true)]
+    #[Groups(['read'])]
+    private ?UuidInterface $uuid = null;
 
     #[ORM\Column(length: 180)]
     #[Groups(['read', 'write'])]
@@ -46,6 +55,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     #[Groups(['write'])]
     private $plainPassword = null;
+
+    public function __construct()
+    {
+        $this->uuid = Uuid::uuid4();
+    }
 
     public function getId(): ?int
     {
@@ -127,6 +141,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
+
+    public function getUuid(): UuidInterface
+    {
+        return $this->uuid;
+    }
+
     /**
      * @see UserInterface
      */
