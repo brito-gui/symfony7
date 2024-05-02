@@ -5,6 +5,8 @@ namespace App\Entity;
 use ApiPlatform\Metadata\ApiProperty;
 use App\Repository\UserRepository;
 use ApiPlatform\Metadata\ApiResource;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
@@ -15,50 +17,58 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
 #[ApiResource(
-    normalizationContext: ['groups' => ['read']],
-    denormalizationContext: ['groups' => ['write']],
+    normalizationContext: ['groups' => ['user:read']],
+    denormalizationContext: ['groups' => ['user:write']],
 )]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
+    const PROFILE_SUPERADMIN = 'SUPERADMIN';
+    const PROFILE_ADMIN = 'ADMIN';
+    const PROFILE_USER = 'USER';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['read'])]
     #[ApiProperty(identifier:false)]
     private ?int $id = null;
 
     #[ORM\Column(type:"uuid", unique:true)]
     #[ApiProperty(identifier:true)]
-    #[Groups(['read'])]
+    #[Groups(['user:read'])]
     private ?UuidInterface $uuid = null;
 
     #[ORM\Column(length: 180)]
-    #[Groups(['read', 'write'])]
+    #[Groups(['user:read', 'user:write'])]
     private ?string $email = null;
-
-    /**
-     * @var list<string> The user roles
-     */
-    #[ORM\Column]
-    #[Groups(['read', 'write'])]
-    private array $roles = [];
 
     /**
      * @var string The hashed password
      */
     #[ORM\Column]
-    #[Groups(['read'])]
+    #[Groups(['user:read'])]
     private ?string $password = null;
 
     /**
      * @var ?string The plaintext password
      */
-    #[Groups(['write'])]
+    #[Groups(['user:write'])]
     private $plainPassword = null;
+
+    #[ORM\Column(length: 10)]
+    #[Groups(['user:read', 'user:write'])]
+    private ?string $profile = null;
+
+    /**
+     * @var Collection<int, UserRole>
+     */
+    #[ORM\OneToMany(targetEntity: UserRole::class, mappedBy: 'user', orphanRemoval: true, cascade:['persist', 'remove', 'refresh', 'detach'])]
+    #[Groups(['user:read','user:write'])]
+    private Collection $userRoles;
 
     public function __construct()
     {
         $this->uuid = Uuid::uuid4();
+        $this->userRoles = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -88,6 +98,20 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return (string) $this->email;
     }
 
+    public function getUserRoles(): Collection
+    {
+        if ($this->profile === self::PROFILE_SUPERADMIN) {
+            $userRole = new UserRole();
+            $role = new Role();
+            $role->setTitle("ROLE_SUPERADMIN");
+            $role->setPermissions(["*"]);
+            $userRole->setRole($role);
+            $userRole->setUser($this);
+            return new ArrayCollection([$userRole]);
+        }
+        return $this->userRoles;
+    }
+
     /**
      * @see UserInterface
      *
@@ -95,21 +119,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     public function getRoles(): array
     {
-        $roles = $this->roles;
-        // guarantee every user at least has ROLE_USER
         $roles[] = 'ROLE_USER';
 
         return array_unique($roles);
-    }
-
-    /**
-     * @param list<string> $roles
-     */
-    public function setRoles(array $roles): static
-    {
-        $this->roles = $roles;
-
-        return $this;
     }
 
     /**
@@ -154,5 +166,39 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         // If you store any temporary, sensitive data on the user, clear it here
         $this->plainPassword = null;
+    }
+
+    public function getProfile(): ?string
+    {
+        return $this->profile;
+    }
+
+    public function setProfile(string $profile): static
+    {
+        $this->profile = $profile;
+
+        return $this;
+    }
+
+    public function addUserRole(UserRole $userRole): static
+    {
+        if (!$this->userRoles->contains($userRole)) {
+            $this->userRoles->add($userRole);
+            $userRole->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUserRole(UserRole $userRole): static
+    {
+        if ($this->userRoles->removeElement($userRole)) {
+            // set the owning side to null (unless already changed)
+            if ($userRole->getUser() === $this) {
+                $userRole->setUser(null);
+            }
+        }
+
+        return $this;
     }
 }
