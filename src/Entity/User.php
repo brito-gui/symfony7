@@ -65,22 +65,46 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['user:read','user:write'])]
     private Collection $userRoles;
 
+    #[Groups(['user:read'])]
+    private ?Company $company;
+
+    /**
+     * __construct
+     *
+     * @return void
+     */
     public function __construct()
     {
         $this->uuid = Uuid::uuid4();
         $this->userRoles = new ArrayCollection();
     }
 
+    /**
+     * getId
+     *
+     * @return int
+     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
+    /**
+     * getEmail
+     *
+     * @return string
+     */
     public function getEmail(): ?string
     {
         return $this->email;
     }
 
+    /**
+     * setEmail
+     *
+     * @param  mixed $email
+     * @return static
+     */
     public function setEmail(string $email): static
     {
         $this->email = $email;
@@ -98,6 +122,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return (string) $this->email;
     }
 
+    /**
+     * getUserRoles
+     *
+     * @return Collection
+     */
     public function getUserRoles(): Collection
     {
         if ($this->profile === self::PROFILE_SUPERADMIN) {
@@ -113,15 +142,50 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * @see UserInterface
+     * getRoles
      *
-     * @return list<string>
+     * @return array
      */
-    public function getRoles(): array
+    public function getRoles() : array
     {
-        $roles[] = 'ROLE_USER';
+        return [];
+    }
 
-        return array_unique($roles);
+    /**
+     * @param SubCompany $subCompany
+     *
+     * @return UserRole|null
+     */
+    public function getUserRoleBySubCompany(SubCompany $subCompany): ?UserRole {
+        $userRole = $this->getUserRoles()->filter(function (UserRole $userRole) use ($subCompany){
+            return !is_null($userRole->getSubCompany()) && $userRole->getSubCompany()->getId() === $subCompany->getId();
+        })->first();
+
+        return !empty($userRole) ? $userRole : null;
+    }
+
+    /**
+     * @return Company|null
+     */
+    public function getCompany(): ?Company
+    {
+        if ($this->getUserRoles()->isEmpty() || is_null($this->getUserRoles()->first()->getCompany())) {
+            return null;
+        }
+
+        return $this->getUserRoles()->first()->getCompany();
+    }
+
+    /**
+     * @return SubCompany
+     */
+    public function getDefaultSubCompany(): ?SubCompany
+    {
+        if ($this->getUserRoles()->isEmpty() || is_null($this->getUserRoles()->first()->getSubCompany())) {
+            return null;
+        }
+
+        return $this->getUserRoles()->first()->getSubCompany();
     }
 
     /**
@@ -132,6 +196,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->password;
     }
 
+    /**
+     * setPassword
+     *
+     * @param  mixed $password
+     * @return static
+     */
     public function setPassword(string $password): static
     {
         $this->password = $password;
@@ -139,11 +209,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    /**
+     * getPlainPassword
+     *
+     * @return string
+     */
     public function getPlainPassword(): ?string
     {
         return $this->plainPassword;
     }
 
+    /**
+     * setPlainPassword
+     *
+     * @param  mixed $plainPassword
+     *
+     * @return static
+     */
     public function setPlainPassword(string $plainPassword): static
     {
         $this->plainPassword = $plainPassword;
@@ -154,6 +236,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    /**
+     * getUuid
+     *
+     * @return UuidInterface
+     */
     public function getUuid(): UuidInterface
     {
         return $this->uuid;
@@ -168,11 +255,22 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->plainPassword = null;
     }
 
+    /**
+     * getProfile
+     *
+     * @return string
+     */
     public function getProfile(): ?string
     {
         return $this->profile;
     }
 
+    /**
+     * setProfile
+     *
+     * @param  mixed $profile
+     * @return static
+     */
     public function setProfile(string $profile): static
     {
         $this->profile = $profile;
@@ -180,6 +278,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    /**
+     * addUserRole
+     *
+     * @param  mixed $userRole
+     * @return static
+     */
     public function addUserRole(UserRole $userRole): static
     {
         if (!$this->userRoles->contains($userRole)) {
@@ -190,6 +294,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    /**
+     * removeUserRole
+     *
+     * @param  mixed $userRole
+     * @return static
+     */
     public function removeUserRole(UserRole $userRole): static
     {
         if ($this->userRoles->removeElement($userRole)) {
