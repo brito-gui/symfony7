@@ -21,8 +21,9 @@ abstract class AbstractApiTestCase extends ApiTestCase
 
         $user = new User();
         $user->setEmail('root@example.com');
+        $user->setProfile(User::PROFILE_SUPERADMIN);
         $user->setPassword(
-            $container->get('security.user_password_hasher')->hashPassword($user, '$3CR3T')
+            $container->get('security.user_password_hasher')->hashPassword($user, '123456')
         );
 
         $manager = $container->get('doctrine')->getManager();
@@ -34,7 +35,7 @@ abstract class AbstractApiTestCase extends ApiTestCase
             'headers' => ['Content-Type' => 'application/json'],
             'json' => [
                 'email' => 'root@example.com',
-                'password' => '$3CR3T',
+                'password' => '123456',
             ],
         ]);
 

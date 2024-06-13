@@ -13,6 +13,11 @@ security:
             lexik_jwt:
                 class: App\Security\User
     firewalls:
+        session:
+            pattern: ^/api/session
+            stateless: true
+            provider: users
+            jwt: ~
         api:
             pattern: ^/api/
             stateless: true

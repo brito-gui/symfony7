@@ -1,5 +1,6 @@
 <?php
-namespace App\Tests\Unit;
+
+namespace App\Tests\Unit\Security;
 
 use App\Security\JWTAuthenticator;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;

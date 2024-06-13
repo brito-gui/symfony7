@@ -1,0 +1,5 @@
+services:
+    App\Tests\Factory\UserFactory:
+        autowire: true
+        autoconfigure: true
+        tags: { name: foundry.factory }
