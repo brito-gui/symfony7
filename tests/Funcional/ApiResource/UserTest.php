@@ -2,6 +2,7 @@
 
 namespace App\Tests\Funcional\ApiResource;
 
+use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Tests\AbstractApiTestCase;
 use Hautelook\AliceBundle\PhpUnit\ReloadDatabaseTrait;
@@ -18,8 +19,8 @@ class UserTest extends AbstractApiTestCase
             'headers' => ['Content-Type' => 'application/json'],
             'json' => [
                 'email' => 'test@example.com',
-                'roles' => ['ROLE_USER'],
-                'plainPassword' => '$3CR3T',
+                'profile' => User::PROFILE_SUPERADMIN,
+                'plainPassword' => '123456',
             ],
         ]);
 
@@ -29,7 +30,7 @@ class UserTest extends AbstractApiTestCase
          * @var UserRepository
          */
         $repository = self::getContainer()->get(UserRepository::class);
-        $user = $repository->find($json['id']);
+        $user = $repository->findOneBy(['uuid' => $json['uuid']]);
 
         $this->assertResponseIsSuccessful();
         $this->assertJsonContains(['@id' => sprintf("/api/users/%s", $user->getUuid())]);

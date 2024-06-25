@@ -30,7 +30,7 @@ class UserRole
     #[ORM\ManyToOne(inversedBy: 'userRoles')]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(['user:read','user:write'])]
-    private ?User $user = null;
+    private User $user;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
@@ -67,6 +67,9 @@ class UserRole
     public function setSubCompany(?SubCompany $subCompany): static
     {
         $this->subCompany = $subCompany;
+        if (!is_null($subCompany)){
+            $this->setCompany($this->subCompany->getCompany());
+        }
 
         return $this;
     }

@@ -36,3 +36,6 @@ services:
         decorates: 'api_platform.openapi.factory'
         arguments: [ '@App\OpenApi\OpenApiFactory.inner' ]
         autoconfigure: true
+
+    App\Tests\Factory\UserFactory:
+        tags: { name: foundry.factory }

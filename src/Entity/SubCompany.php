@@ -24,10 +24,11 @@ class SubCompany
     #[ORM\GeneratedValue]
     #[ORM\Column]
     #[ApiProperty(identifier:false)]
+    #[Groups(['company:read', 'subCompany:write', 'subCompany:read', 'user:read'])]
     private ?int $id = null;
 
     #[ApiProperty(identifier:true)]
-    #[Groups(['company:read', 'subCompany:write', 'subCompany:read', 'user:read'])]
+    #[Groups(['company:read', 'subCompany:write', 'subCompany:read', 'user:read', 'session:write'])]
     #[ORM\Column(type: 'uuid', unique:true)]
     private ?UuidInterface $uuid = null;
 
@@ -60,6 +61,11 @@ class SubCompany
     public function getUuid(): UuidInterface
     {
         return $this->uuid;
+    }
+
+    public function setUuid($uuid): static
+    {
+        return $this;
     }
 
     public function getName(): ?string

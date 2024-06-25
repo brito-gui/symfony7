@@ -2,10 +2,10 @@
 
 namespace App\Controller;
 
+use App\ApiResource\Session;
 use App\Entity\User;
 use App\Repository\SubCompanyRepository;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
-use Nelmio\ApiDocBundle\Annotation\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -13,45 +13,29 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use OpenApi\Attributes as OA;
-use Nelmio\ApiDocBundle\ModelDescriber\Annotations\OpenApiAnnotationsReader;
-use Nelmio\ApiDocBundle\Annotation\Model;
 
-class AuthController extends AbstractController
+class SessionController extends AbstractController
 {
-    #[Route('/old-session/switch_sub_company', methods: ['POST'])]
-    #[OA\Post(summary: "Change the active subCompany from the logged in user", path: '/old-session/switch_sub_company')]
-    #[OA\Response(
-        response: 200,
-        description: 'Updates a user token',
-        content: new OA\JsonContent(
-            type: 'object',
-            properties: [
-                new OA\Property(property:'token',
-                    type: 'string',
-                    readOnly: true,
-                    nullable: false
-                )
-            ],
-        )
+    #[Route(
+        name: '_api_session_patch',
+        path: '/api/session',
+        methods: ['PATCH'],
+        defaults: [
+            '_api_resource_class' => Session::class,
+            '_api_operation_name' => '_api_session_patch',
+        ],
     )]
-    #[OA\Response(
-        response: 400,
-        description: 'Invalid input'
-    )]
-    #[OA\Response(
-        response: 404,
-        description: 'Not found'
-    )]
-    #[OA\Parameter(
-        name: 'uuid',
-        in: 'path',
-        description: 'SubCompany uuid',
-        schema: new OA\Schema(type: 'string')
-    )]
-    #[OA\Tag(name: 'Session', description: 'Switch the active subCompany from the logged in user')]
-    #[Security(name: 'JWT')]
-    public function switchSubCompany(TokenStorageInterface $tokenStorageInterface, JWTTokenManagerInterface $jwtManager, Request $request, SubCompanyRepository $repository): Response
+    /**
+     * Updates current active sub_company from logged in session (JWT Token)
+     *
+     * @param  TokenStorageInterface    $tokenStorageInterface
+     * @param  JWTTokenManagerInterface $jwtManager
+     * @param  Request                  $request
+     * @param  SubCompanyRepository     $repository
+     *
+     * @return Response
+     */
+    public function __invoke(TokenStorageInterface $tokenStorageInterface, JWTTokenManagerInterface $jwtManager, Request $request, SubCompanyRepository $repository): Response
     {
         $payload = json_decode($request->getContent());
 

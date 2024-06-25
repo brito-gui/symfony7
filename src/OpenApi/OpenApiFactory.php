@@ -1,10 +1,8 @@
 <?php
 namespace App\OpenApi;
 
-use ApiPlatform\Metadata\Operation;
 use ApiPlatform\OpenApi\Factory\OpenApiFactoryInterface;
 use ApiPlatform\OpenApi\OpenApi;
-use ApiPlatform\OpenApi\Model;
 use ApiPlatform\OpenApi\Model\PathItem;
 use Symfony\Component\DependencyInjection\Attribute\AsDecorator;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -27,7 +25,9 @@ class OpenApiFactory implements OpenApiFactoryInterface
         $openApi = ($this->decorated)($context);
         $authPath = $openApi->getPaths()->getPath('/auth');
 
-        $post = $authPath->getPost()->withTags(['Auth']);
+        $openApi->withSecurity(['JWT']);
+
+        $post = $authPath->getPost()->withSecurity([])->withTags(['Auth']);
 
         $openApi->getPaths()->addPath(
             '/auth',

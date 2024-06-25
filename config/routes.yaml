@@ -8,6 +8,18 @@ auth:
     path: /auth
     methods: ['POST']
 
+session_switch_sub_company:
+    path: /session/switch_sub_company/{uid}
+    methods: ['POST']
+    defaults: { 
+        _controller: App/Controller/AuthController:switchSubCompany
+    }
+
 api_doc:
     path: /docs
     controller: api_platform.swagger_ui.action
+
+app.swagger_ui:
+    path: /doc
+    methods: GET
+    defaults: { _controller: nelmio_api_doc.controller.swagger_ui }
