@@ -39,8 +39,10 @@ class JWTCreatedListener
         $payload['ip'] = $request->getClientIp();
         $payload['profile'] = $user->getProfile();
         $payload['company_uuid'] = !is_null($user->getCompany()) ? $user->getCompany()->getUuid() : null;
+        $payload['company_id'] = !is_null($user->getCompany()) ? $user->getCompany()->getId() : 0;
         $payload['company_name'] = !is_null($user->getCompany()) ? $user->getCompany()->getName() : null;
         $payload['sub_company_uuid'] = $payload['sub_company_uuid'] ?? (!is_null($user->getDefaultSubCompany()) ? $user->getDefaultSubCompany()->getUuid() : null);
+        $payload['sub_company_id'] = $payload['sub_company_id'] ?? (!is_null($user->getDefaultSubCompany()) ? $user->getDefaultSubCompany()->getId() : 0);
         $payload['sub_company_name'] = $payload['sub_company_name'] ?? (!is_null($user->getDefaultSubCompany()) ? $user->getDefaultSubCompany()->getName() : null);
         $payload['permissions'] = $payload['permissions'] ?? $this->getPermissions($user);
         $event->setData($payload);

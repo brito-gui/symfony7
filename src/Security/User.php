@@ -9,6 +9,9 @@ final class User implements JWTUserInterface
     public string $email;
     public array $roles;
     public array $permissions;
+    public string $profile;
+    public int $companyId;
+    public int $subCompanyId;
 
     /**
      * __construct
@@ -18,11 +21,14 @@ final class User implements JWTUserInterface
      * @param  mixed $permissions
      * @return void
      */
-    public function __construct($email, array $roles, array $permissions)
+    public function __construct($email, array $roles, array $permissions, string $profile, int $companyId, int $subCompanyId)
     {
         $this->email = $email;
         $this->roles = $roles;
         $this->permissions = $permissions;
+        $this->profile = $profile;
+        $this->companyId = $companyId;
+        $this->subCompanyId = $subCompanyId;
     }
 
     /**
@@ -34,10 +40,14 @@ final class User implements JWTUserInterface
      */
     public static function createFromPayload($username, array $payload)
     {
+        var_dump($payload);
         return new self(
             $username,  // Custom
             $payload['roles'], // Added by default
             $payload['permissions'],
+            $payload['profile'],
+            $payload['company_id'],
+            $payload['sub_company_id'],
         );
     }
 
@@ -59,6 +69,30 @@ final class User implements JWTUserInterface
     public function getPermissions(): array
     {
         return $this->permissions;
+    }
+
+    /**
+     * @return string
+     */
+    public function getProfile(): string
+    {
+        return $this->profile;
+    }
+
+    /**
+     * @return int
+     */
+    public function getSubCompanyId(): int
+    {
+        return $this->subCompanyId;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCompanyId(): int
+    {
+        return $this->companyId;
     }
 
     /**
