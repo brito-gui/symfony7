@@ -27,11 +27,11 @@ class Company
     private ?int $id = null;
 
     #[ApiProperty(identifier:true)]
-    #[Groups(['company:read','company:write', 'subCompany:read', 'user:read'])]
+    #[Groups(['company:read','company:write', 'subCompany:read', 'user:read','account:read'])]
     #[ORM\Column(type:"uuid", unique:true)]
     private ?UuidInterface $uuid = null;
 
-    #[Groups(['company:read','company:write', 'subCompany:read', 'user:read'])]
+    #[Groups(['company:read','company:write', 'subCompany:read', 'user:read','account:read'])]
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
@@ -42,10 +42,17 @@ class Company
     #[Groups(['company:read','company:write'])]
     private Collection $subCompanies;
 
+    /**
+     * @var Collection<int, Account>
+     */
+    #[ORM\OneToMany(targetEntity: Account::class, mappedBy: 'company')]
+    private Collection $accounts;
+
     public function __construct()
     {
         $this->uuid = Uuid::uuid4();
         $this->subCompanies = new ArrayCollection();
+        $this->accounts = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -94,6 +101,36 @@ class Company
             // set the owning side to null (unless already changed)
             if ($subCompany->getCompany() === $this) {
                 $subCompany->setCompany(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Account>
+     */
+    public function getAccounts(): Collection
+    {
+        return $this->accounts;
+    }
+
+    public function addAccount(Account $account): static
+    {
+        if (!$this->accounts->contains($account)) {
+            $this->accounts->add($account);
+            $account->setCompany($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAccount(Account $account): static
+    {
+        if ($this->accounts->removeElement($account)) {
+            // set the owning side to null (unless already changed)
+            if ($account->getCompany() === $this) {
+                $account->setCompany(null);
             }
         }
 

@@ -2,14 +2,14 @@
 
 namespace App\Tests\Factory;
 
-use App\Entity\UserRole;
+use App\Entity\Account;
 use Zenstruck\Foundry\LazyValue;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**
- * @extends PersistentProxyObjectFactory<UserRole>
+ * @extends PersistentProxyObjectFactory<Account>
  */
-final class UserRoleFactory extends PersistentProxyObjectFactory
+final class AccountFactory extends PersistentProxyObjectFactory
 {
     /**
      * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#factories-as-services
@@ -22,7 +22,7 @@ final class UserRoleFactory extends PersistentProxyObjectFactory
 
     public static function class(): string
     {
-        return UserRole::class;
+        return Account::class;
     }
 
     /**
@@ -32,23 +32,13 @@ final class UserRoleFactory extends PersistentProxyObjectFactory
      */
     protected function defaults(): array|callable
     {
-        $title = self::faker()->randomElement(['ROLE_READ', 'ROLE_WRITE']);
-        $permissions =[
-            'ROLE_ADMIN' => ['*'],
-            'ROLE_READ' => ['PATCH/api/session*','GET/api/companies*','GET/api/users*','GET/api/accounts*'],
-            'ROLE_WRITE' => ['PATCH/api/session*','PUT/api/companies*','POST/api/companies*','PATCH/api/companies*','GET/api/users*','GET/api/accounts*'],
-        ];
         $company = LazyValue::memoize(fn() => CompanyFactory::createOne());
 
         return [
             'subCompany' => SubCompanyFactory::new(['company' => $company]),
-            'role' => RoleFactory::new(
-                [
-                    'title' => $title,
-                    'permissions' => $permissions[$title],
-                ]
-            ),
-            'user' => UserFactory::new(),
+            'company' => $company,
+            'description' => self::faker()->text(255),
+            'number' => self::faker()->creditCardType(),
         ];
     }
 
@@ -58,7 +48,7 @@ final class UserRoleFactory extends PersistentProxyObjectFactory
     protected function initialize(): static
     {
         return $this
-            // ->afterInstantiate(function(UserRole $userRole): void {})
+            // ->afterInstantiate(function(Account $account): void {})
         ;
     }
 }

@@ -9,6 +9,17 @@ use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
 
 abstract class AbstractApiTestCase extends ApiTestCase
 {
+    protected ?Client $client = null;
+
+    public function getStaticClient(): Client
+    {
+        if(is_null($this->client)) {
+            return $this->client = self::createClient();
+        }
+
+        return $this->client;
+    }
+
     /**
      * createAuthenticatedClient
      *
@@ -62,8 +73,26 @@ abstract class AbstractApiTestCase extends ApiTestCase
             'auth_bearer' => $encoder->encode(["roles"=> ["ROLE_USER"], 'username' => "root@example.com"]),
         ]);
 
-        //dd($encoder->encode($claims));
-
         return $client;
+    }
+
+    /**
+     * getTokenByEmail
+     *
+     * @param  string $email
+     *
+     * @return void
+     */
+    protected function getTokenByEmail(string $email)
+    {
+        $response = $this->getStaticClient()->request('POST', '/auth', [
+            'headers' => ['Content-Type' => 'application/json'],
+            'json' => [
+                'email' => $email,
+                'password' => '123456',
+            ],
+        ]);
+
+        return $response->toArray()['token'] ?? null;
     }
 }
