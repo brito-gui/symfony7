@@ -28,11 +28,11 @@ class SubCompany
     private ?int $id = null;
 
     #[ApiProperty(identifier:true)]
-    #[Groups(['company:read', 'subCompany:write', 'subCompany:read', 'user:read', 'session:write'])]
+    #[Groups(['company:read', 'subCompany:write', 'subCompany:read', 'user:read', 'session:write','account:read'])]
     #[ORM\Column(type: 'uuid', unique:true)]
     private ?UuidInterface $uuid = null;
 
-    #[Groups(['subCompany:read', 'subCompany:write', 'company:read', 'user:read'])]
+    #[Groups(['subCompany:read', 'subCompany:write', 'company:read', 'user:read','account:read'])]
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
@@ -47,10 +47,17 @@ class SubCompany
     #[ORM\OneToMany(targetEntity: UserRole::class, mappedBy: 'subCompany')]
     private Collection $userRoles;
 
+    /**
+     * @var Collection<int, Account>
+     */
+    #[ORM\OneToMany(targetEntity: Account::class, mappedBy: 'subCompany')]
+    private Collection $accounts;
+
     public function __construct()
     {
         $this->uuid = Uuid::uuid4();
         $this->userRoles = new ArrayCollection();
+        $this->accounts = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -116,6 +123,36 @@ class SubCompany
             // set the owning side to null (unless already changed)
             if ($userRole->getSubCompany() === $this) {
                 $userRole->setSubCompany(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Account>
+     */
+    public function getAccounts(): Collection
+    {
+        return $this->accounts;
+    }
+
+    public function addAccount(Account $account): static
+    {
+        if (!$this->accounts->contains($account)) {
+            $this->accounts->add($account);
+            $account->setSubCompany($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAccount(Account $account): static
+    {
+        if ($this->accounts->removeElement($account)) {
+            // set the owning side to null (unless already changed)
+            if ($account->getSubCompany() === $this) {
+                $account->setSubCompany(null);
             }
         }
 

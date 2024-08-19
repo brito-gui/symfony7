@@ -40,7 +40,7 @@ services:
     App\Tests\Factory\UserFactory:
         tags: { name: foundry.factory }
 
-    App\Doctrine\CurrentUserExtension:
+    App\Doctrine\CurrentUserSubCompanyExtension:
         tags:
             - { name: api_platform.doctrine.orm.query_extension.collection, priority: 9 }
             - { name: api_platform.doctrine.orm.query_extension.item }

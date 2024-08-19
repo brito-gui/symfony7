@@ -40,7 +40,6 @@ final class User implements JWTUserInterface
      */
     public static function createFromPayload($username, array $payload)
     {
-        var_dump($payload);
         return new self(
             $username,  // Custom
             $payload['roles'], // Added by default

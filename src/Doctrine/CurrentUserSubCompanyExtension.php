@@ -14,7 +14,7 @@ use App\Security\User as SecurityUser;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Bundle\SecurityBundle\Security;
 
-final class CurrentUserExtension implements QueryCollectionExtensionInterface, QueryItemExtensionInterface
+final class CurrentUserSubCompanyExtension implements QueryCollectionExtensionInterface, QueryItemExtensionInterface
 {
     public function __construct(private Security $security)
     {}
@@ -53,11 +53,11 @@ final class CurrentUserExtension implements QueryCollectionExtensionInterface, Q
         $companyId = $user->getCompanyId();
 
         $rootAlias = $queryBuilder->getRootAliases()[0];
-        $queryBuilder->andWhere(sprintf('%s.companyId = :companyId', $rootAlias));
+        $queryBuilder->andWhere(sprintf('%s.company = :companyId', $rootAlias));
         $queryBuilder->setParameter('companyId', $companyId);
 
         if ($subCompanyId > 0) {
-            $queryBuilder->andWhere(sprintf('%s.subCompanyId = :subCompanyId', $rootAlias));
+            $queryBuilder->andWhere(sprintf('%s.subCompany = :subCompanyId', $rootAlias));
             $queryBuilder->setParameter('subCompanyId', $subCompanyId);
         }
     }

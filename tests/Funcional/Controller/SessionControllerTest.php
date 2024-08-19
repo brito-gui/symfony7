@@ -98,22 +98,4 @@ class SessionControllerTest extends AbstractApiTestCase
         // Assures route responses a 404 code
         $this->assertResponseStatusCodeSame(404);
     }
-
-    /**
-     * @return void
-     */
-    public function provideDataForAssuresSwitchSessionWillNotWork()
-    {
-        return [
-            '1' => [
-                'user' => UserFactory::new()->asAdmin()->create()->_real(),
-                'expectedStatusCode' => 404
-            ],
-            '2' => [
-                'user' => UserFactory::new()->asSuperAdmin()->create()->_real(),
-                'expectedStatusCode' => 404
-            ],
-        ];
-    }
-
 }
